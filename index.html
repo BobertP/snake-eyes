@@ -1,20 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snake Eyes Dice Roller</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Dice</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.webmanifest" />
+
+  <!-- Theme colors -->
+  <meta name="theme-color" content="#0b5fff" />
+  <meta name="color-scheme" content="light dark" />
+
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Dice" />
+  <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Snake Eyes 🎲</h1>
-  <div id="dice-container">
-    <div class="die" id="die1">🎲</div>
-    <div class="die" id="die2">🎲</div>
-  </div>
-  <button id="roll-btn">Roll Dice</button>
-  <p id="result"></p>
+  <main id="app" aria-label="Tap anywhere to roll two dice">
+    <div id="dice">
+      <img class="die" id="die1" src="icons/dice-six-faces-one.svg" alt="die face 1" />
+      <img class="die" id="die2" src="icons/dice-six-faces-one.svg" alt="die face 1" />
+    </div>
+    <div id="result" aria-live="polite"></div>
+  </main>
 
   <script src="script.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(console.error);
+      });
+    }
+  </script>
 </body>
 </html>

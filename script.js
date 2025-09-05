@@ -1,21 +1,54 @@
-document.getElementById("roll-btn").addEventListener("click", rollDice);
+const app = document.getElementById("app");
+const dieEl1 = document.getElementById("die1");
+const dieEl2 = document.getElementById("die2");
+const resultEl = document.getElementById("result");
 
-function rollDice() {
-  const die1 = Math.floor(Math.random() * 6) + 1;
-  const die2 = Math.floor(Math.random() * 6) + 1;
+function getDieSrc(num) {
+  const names = ["one", "two", "three", "four", "five", "six"];
+  return `icons/dice-six-faces-${names[num - 1]}.svg`;
+}
 
-  document.getElementById("die1").textContent = getDieFace(die1);
-  document.getElementById("die2").textContent = getDieFace(die2);
+let rolling = false;
 
-  let resultText = `You rolled ${die1} and ${die2}`;
-  if (die1 === 1 && die2 === 1) {
-    resultText += " 🎉 Snake Eyes!";
+function rollDiceFast() {
+  if (rolling) return;
+  rolling = true;
+  app.classList.add("rolling");
+
+  const start = performance.now();
+  const duration = 520;
+
+  function frame(now) {
+    if (now - start < duration) {
+      dieEl1.src = getDieSrc(rand1to6());
+      dieEl2.src = getDieSrc(rand1to6());
+      setTimeout(() => requestAnimationFrame(frame), 38);
+    } else {
+      const n1 = rand1to6();
+      const n2 = rand1to6();
+      dieEl1.src = getDieSrc(n1);
+      dieEl2.src = getDieSrc(n2);
+
+      if (n1 === 1 && n2 === 1) {
+        resultEl.textContent = "Snake Eyes! 🎉";
+      } else {
+        resultEl.textContent = `You rolled ${n1} and ${n2}`;
+      }
+
+      app.classList.remove("rolling");
+      rolling = false;
+    }
   }
 
-  document.getElementById("result").textContent = resultText;
+  requestAnimationFrame(frame);
 }
 
-function getDieFace(num) {
-  const diceFaces = ["⚀","⚁","⚂","⚃","⚄","⚅"];
-  return diceFaces[num - 1];
+function rand1to6() {
+  return Math.floor(Math.random() * 6) + 1;
 }
+
+// tap/click anywhere
+app.addEventListener("pointerdown", rollDiceFast, { passive: true });
+
+// auto-roll on load
+setTimeout(rollDiceFast, 300);
