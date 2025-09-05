@@ -1,71 +1,48 @@
-const app  = document.getElementById("app");
-const die1 = document.getElementById("die1");
-const die2 = document.getElementById("die2");
+// --- dice-only script: no #result anywhere ---
 
-// exact filenames (lowercase)
-const faces = [
-  "icons/dice-six-faces-one.svg",
-  "icons/dice-six-faces-two.svg",
-  "icons/dice-six-faces-three.svg",
-  "icons/dice-six-faces-four.svg",
-  "icons/dice-six-faces-five.svg",
-  "icons/dice-six-faces-six.svg",
-];
+const app    = document.getElementById("app");
+const dieEl1 = document.getElementById("die1");
+const dieEl2 = document.getElementById("die2");
 
-// sanity check (won't crash the app)
-if (!app || !die1 || !die2) {
-  console.error("Dice elements not found. Check your index.html element IDs.");
+function getDieSrc(num) {
+  const names = ["one", "two", "three", "four", "five", "six"];
+  return `icons/dice-six-faces-${names[num - 1]}.svg`;
 }
-
-const r6 = () => Math.floor(Math.random() * 6) + 1;
 
 let rolling = false;
-let intervalId = null;
 
-function clearSpin() {
-  if (intervalId) {
-    clearInterval(intervalId);
-    intervalId = null;
-  }
-  app?.classList.remove("rolling");
-  rolling = false;
+function rand1to6() {
+  return Math.floor(Math.random() * 6) + 1;
 }
 
-function roll() {
+function rollDiceFast() {
   if (rolling) return;
-  if (!app || !die1 || !die2) return;
   rolling = true;
-  app.classList.add("rolling");
+  app?.classList.add("rolling");
 
-  const duration = 520;   // total spin
-  const frameMs  = 45;    // frame cadence
+  const start = performance.now();
+  const duration = 520;
 
-  // spin animation (random faces)
-  intervalId = setInterval(() => {
-    die1.src = faces[r6() - 1];
-    die2.src = faces[r6() - 1];
-  }, frameMs);
+  function frame(now) {
+    if (now - start < duration) {
+      // spin frames
+      dieEl1.src = getDieSrc(rand1to6());
+      dieEl2.src = getDieSrc(rand1to6());
+      setTimeout(() => requestAnimationFrame(frame), 38);
+    } else {
+      // final faces
+      dieEl1.src = getDieSrc(rand1to6());
+      dieEl2.src = getDieSrc(rand1to6());
 
-  // stop and set final faces
-  setTimeout(() => {
-    try {
-      die1.src = faces[r6() - 1];
-      die2.src = faces[r6() - 1];
-    } finally {
-      clearSpin();
+      app?.classList.remove("rolling");
+      rolling = false;
     }
-  }, duration);
+  }
 
-  // ultimate safety (never get stuck)
-  setTimeout(() => {
-    if (rolling) {
-      console.warn("Safety reset triggered.");
-      clearSpin();
-    }
-  }, duration + 1500);
+  requestAnimationFrame(frame);
 }
 
-// tap anywhere
-app?.addEventListener("pointerdown", roll, { passive: true });
+// tap/click anywhere
+app?.addEventListener("pointerdown", rollDiceFast, { passive: true });
 // autoroll on load
-setTimeout(roll, 300);
+setTimeout(rollDiceFast, 300);
