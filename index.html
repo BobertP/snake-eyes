@@ -14,14 +14,15 @@
     </div>
   </main>
 
-  <script src="script.js"></script>
   <script>
-    // Safe SW registration (optional). Comment this out if you don't want a SW.
+    // 🔥 Kill any old service workers & caches so new JS actually loads
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').catch(console.error);
-      });
+      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+    }
+    if ('caches' in window) {
+      caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
     }
   </script>
+  <script src="script.js"></script>
 </body>
 </html>

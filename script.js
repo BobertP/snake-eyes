@@ -1,48 +1,81 @@
-// --- dice-only script: no #result anywhere ---
+// Minimal dice roller (no text). Includes cache-busting and robust cleanup.
 
-const app    = document.getElementById("app");
-const dieEl1 = document.getElementById("die1");
-const dieEl2 = document.getElementById("die2");
+const app  = document.getElementById("app");
+const die1 = document.getElementById("die1");
+const die2 = document.getElementById("die2");
 
-function getDieSrc(num) {
-  const names = ["one", "two", "three", "four", "five", "six"];
-  return `icons/dice-six-faces-${names[num - 1]}.svg`;
+// Sanity: ensure elements exist
+if (!app || !die1 || !die2) {
+  console.error("Dice elements not found. Check index.html IDs.");
 }
+
+// Version token to bust any stale caching on the icons (query param is safe)
+const V = "v3";
+
+// Exact filenames (lowercase, hyphens). Keep these names in /icons/.
+const faces = [
+  `icons/dice-six-faces-one.svg?${V}`,
+  `icons/dice-six-faces-two.svg?${V}`,
+  `icons/dice-six-faces-three.svg?${V}`,
+  `icons/dice-six-faces-four.svg?${V}`,
+  `icons/dice-six-faces-five.svg?${V}`,
+  `icons/dice-six-faces-six.svg?${V}`,
+];
+
+// Preload and log if any are missing (does not break the app)
+faces.forEach((src, i) => {
+  const img = new Image();
+  img.onerror = () => console.error(`❌ Missing file: ${src} (face ${i + 1})`);
+  img.src = src;
+});
+
+const r6 = () => Math.floor(Math.random() * 6) + 1;
 
 let rolling = false;
+let spinTimer = null;
+let safetyTimer = null;
 
-function rand1to6() {
-  return Math.floor(Math.random() * 6) + 1;
+function clearTimers() {
+  if (spinTimer)  { clearInterval(spinTimer);  spinTimer = null; }
+  if (safetyTimer){ clearTimeout(safetyTimer); safetyTimer = null; }
+  app && app.classList.remove("rolling");
+  rolling = false;
 }
 
-function rollDiceFast() {
-  if (rolling) return;
+function startRoll() {
+  if (rolling || !app || !die1 || !die2) return;
   rolling = true;
-  app?.classList.add("rolling");
+  app.classList.add("rolling");
 
-  const start = performance.now();
-  const duration = 520;
+  const duration = 520; // ms
+  const frameMs  = 45;  // ms per spin frame
 
-  function frame(now) {
-    if (now - start < duration) {
-      // spin frames
-      dieEl1.src = getDieSrc(rand1to6());
-      dieEl2.src = getDieSrc(rand1to6());
-      setTimeout(() => requestAnimationFrame(frame), 38);
-    } else {
-      // final faces
-      dieEl1.src = getDieSrc(rand1to6());
-      dieEl2.src = getDieSrc(rand1to6());
+  // Spin: show random faces quickly
+  spinTimer = setInterval(() => {
+    die1.src = faces[r6() - 1];
+    die2.src = faces[r6() - 1];
+  }, frameMs);
 
-      app?.classList.remove("rolling");
-      rolling = false;
+  // Finalize faces after duration
+  setTimeout(() => {
+    try {
+      die1.src = faces[r6() - 1];
+      die2.src = faces[r6() - 1];
+    } finally {
+      clearTimers();
     }
-  }
+  }, duration);
 
-  requestAnimationFrame(frame);
+  // Safety: never get stuck in "rolling" even if something odd happens
+  safetyTimer = setTimeout(() => {
+    if (rolling) {
+      console.warn("Safety reset triggered.");
+      clearTimers();
+    }
+  }, duration + 1500);
 }
 
-// tap/click anywhere
-app?.addEventListener("pointerdown", rollDiceFast, { passive: true });
-// autoroll on load
-setTimeout(rollDiceFast, 300);
+// Tap/click anywhere
+app && app.addEventListener("pointerdown", startRoll, { passive: true });
+// Autoroll on load
+setTimeout(startRoll, 300);
