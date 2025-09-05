@@ -2,19 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dice</title>
-
-  <!-- PWA Manifest (optional; re-enable after icons exist) -->
-  <!-- <link rel="manifest" href="/manifest.webmanifest" /> -->
-
-  <!-- Theme colors -->
-  <meta name="theme-color" content="#0b5fff" />
-  <meta name="color-scheme" content="light dark" />
-
-  <!-- Modern mobile meta -->
-  <meta name="mobile-web-app-capable" content="yes" />
-
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -26,5 +15,13 @@
   </main>
 
   <script src="script.js"></script>
+  <script>
+    // Safe SW registration (optional). Comment this out if you don't want a SW.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(console.error);
+      });
+    }
+  </script>
 </body>
 </html>

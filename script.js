@@ -1,12 +1,8 @@
-// script.js
 const app  = document.getElementById("app");
 const die1 = document.getElementById("die1");
 const die2 = document.getElementById("die2");
 
-if (!app || !die1 || !die2) {
-  console.error("Dice elements not found on the page.");
-}
-
+// exact filenames (lowercase)
 const faces = [
   "icons/dice-six-faces-one.svg",
   "icons/dice-six-faces-two.svg",
@@ -16,33 +12,60 @@ const faces = [
   "icons/dice-six-faces-six.svg",
 ];
 
+// sanity check (won't crash the app)
+if (!app || !die1 || !die2) {
+  console.error("Dice elements not found. Check your index.html element IDs.");
+}
+
 const r6 = () => Math.floor(Math.random() * 6) + 1;
 
 let rolling = false;
+let intervalId = null;
+
+function clearSpin() {
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+  app?.classList.remove("rolling");
+  rolling = false;
+}
 
 function roll() {
-  if (rolling || !app || !die1 || !die2) return;
+  if (rolling) return;
+  if (!app || !die1 || !die2) return;
   rolling = true;
   app.classList.add("rolling");
 
-  const start = performance.now();
-  const duration = 520;
+  const duration = 520;   // total spin
+  const frameMs  = 45;    // frame cadence
 
-  function frame(now) {
-    if (now - start < duration) {
+  // spin animation (random faces)
+  intervalId = setInterval(() => {
+    die1.src = faces[r6() - 1];
+    die2.src = faces[r6() - 1];
+  }, frameMs);
+
+  // stop and set final faces
+  setTimeout(() => {
+    try {
       die1.src = faces[r6() - 1];
       die2.src = faces[r6() - 1];
-      setTimeout(() => requestAnimationFrame(frame), 38);
-    } else {
-      die1.src = faces[r6() - 1];
-      die2.src = faces[r6() - 1];
-      app.classList.remove("rolling");
-      rolling = false;
+    } finally {
+      clearSpin();
     }
-  }
+  }, duration);
 
-  requestAnimationFrame(frame);
+  // ultimate safety (never get stuck)
+  setTimeout(() => {
+    if (rolling) {
+      console.warn("Safety reset triggered.");
+      clearSpin();
+    }
+  }, duration + 1500);
 }
 
+// tap anywhere
 app?.addEventListener("pointerdown", roll, { passive: true });
-setTimeout(roll, 300); // autoroll on load
+// autoroll on load
+setTimeout(roll, 300);
