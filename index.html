@@ -5,18 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Dice</title>
 
-  <!-- (Optional) Manifest - DISABLED until icons exist to avoid 404s -->
+  <!-- PWA Manifest (optional; re-enable after icons exist) -->
   <!-- <link rel="manifest" href="/manifest.webmanifest" /> -->
 
-  <!-- Theme color -->
+  <!-- Theme colors -->
   <meta name="theme-color" content="#0b5fff" />
   <meta name="color-scheme" content="light dark" />
 
-  <!-- iOS PWA (modern) -->
+  <!-- Modern mobile meta -->
   <meta name="mobile-web-app-capable" content="yes" />
-  <!-- (Deprecated but harmless) <meta name="apple-mobile-web-app-capable" content="yes" /> -->
-  <!-- Remove this until you add /icons/icon-180.png -->
-  <!-- <link rel="apple-touch-icon" href="/icons/icon-180.png" /> -->
 
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -29,13 +26,5 @@
   </main>
 
   <script src="script.js"></script>
-  <script>
-    // If you are using a service worker, leave this. Otherwise you can remove.
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').catch(console.error);
-      });
-    }
-  </script>
 </body>
 </html>
