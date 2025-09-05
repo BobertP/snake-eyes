@@ -32,7 +32,7 @@ function rollDiceFast() {
       if (n1 === 1 && n2 === 1) {
         resultEl.textContent = "Snake Eyes";
       } else {
-        resultEl.textContent = `You rolled ${n1} and ${n2}`;
+        resultEl.textContent = `${n1} and ${n2}`;
       }
 
       app.classList.remove("rolling");
