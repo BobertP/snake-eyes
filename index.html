@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Dice</title>
 
-  <!-- Auto theme support -->
-  <meta name="color-scheme" content="light dark" />
-  <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#0b0e14" media="(prefers-color-scheme: dark)" />
-
-  <!-- PWA -->
+  <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.webmanifest" />
+
+  <!-- Theme colors -->
+  <meta name="theme-color" content="#0b5fff" />
+  <meta name="color-scheme" content="light dark" />
+
+  <!-- iOS PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Dice" />
@@ -25,6 +26,7 @@
       <img class="die" id="die1" src="icons/dice-six-faces-one.svg" alt="die face 1" />
       <img class="die" id="die2" src="icons/dice-six-faces-one.svg" alt="die face 1" />
     </div>
+    <div id="result" aria-live="polite"></div>
   </main>
 
   <script src="script.js"></script>

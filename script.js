@@ -1,7 +1,6 @@
 const app = document.getElementById("app");
 const dieEl1 = document.getElementById("die1");
 const dieEl2 = document.getElementById("die2");
-const resultEl = document.getElementById("result");
 
 function getDieSrc(num) {
   const names = ["one", "two", "three", "four", "five", "six"];
@@ -28,13 +27,6 @@ function rollDiceFast() {
       const n2 = rand1to6();
       dieEl1.src = getDieSrc(n1);
       dieEl2.src = getDieSrc(n2);
-
-      if (n1 === 1 && n2 === 1) {
-        resultEl.textContent = "Snake Eyes! 🎉";
-      } else {
-        resultEl.textContent = `You rolled ${n1} and ${n2}`;
-      }
-
       app.classList.remove("rolling");
       rolling = false;
     }
