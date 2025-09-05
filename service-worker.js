@@ -1,7 +1,8 @@
-// service-worker.js
-const CACHE_NAME = 'se-v3'; // bump this on every deploy that changes assets
+// Bump this to invalidate old caches
+const CACHE_NAME = 'se-v5';
+
 const PRECACHE_URLS = [
-  // Don't pre-cache '/' or '/index.html' to avoid serving stale HTML
+  // Do NOT precache '/' or '/index.html' (avoid stale HTML)
   '/style.css',
   '/script.js',
   '/manifest.webmanifest',
@@ -16,9 +17,7 @@ const PRECACHE_URLS = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE_URLS))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE_URLS)));
   self.skipWaiting();
 });
 
@@ -31,18 +30,14 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Network-first for HTML; cache-first for other GETs
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
   const isHTML = req.headers.get('accept')?.includes('text/html');
-
   if (isHTML) {
-    // Always try network first for HTML to get the latest deploy
-    event.respondWith(
-      fetch(req).catch(() => caches.match('/index.html'))
-    );
+    // Network-first for HTML
+    event.respondWith(fetch(req).catch(() => caches.match('/index.html')));
     return;
   }
 
@@ -57,9 +52,4 @@ self.addEventListener('fetch', event => {
       });
     })
   );
-});
-
-// Optional: allow page to tell SW to update immediately
-self.addEventListener('message', event => {
-  if (event.data === 'skip-waiting') self.skipWaiting();
 });
