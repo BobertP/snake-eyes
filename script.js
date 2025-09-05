@@ -1,7 +1,6 @@
 const app   = document.getElementById("app");
 const die1  = document.getElementById("die1");
 const die2  = document.getElementById("die2");
-const out   = document.getElementById("result");
 
 const names = ["one", "two", "three", "four", "five", "six"];
 const face  = n => `icons/dice-six-faces-${names[n - 1]}.svg`;
@@ -23,13 +22,8 @@ function roll() {
       die2.src = face(r6());
       setTimeout(() => requestAnimationFrame(tick), 38);
     } else {
-      const a = r6();
-      const b = r6();
-      die1.src = face(a);
-      die2.src = face(b);
-
-      out.textContent = (a === 1 && b === 1) ? "Snake Eyes" : `${a} and ${b}`;
-
+      die1.src = face(r6());
+      die2.src = face(r6());
       app.classList.remove("rolling");
       rolling = false;
     }
