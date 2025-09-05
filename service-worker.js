@@ -1,57 +1,65 @@
-:root {
-  --die-size: clamp(7rem, 22vw, 16rem);
-  --gap: clamp(1rem, 4vw, 3rem);
-}
+// service-worker.js
+const CACHE_NAME = 'se-v3'; // bump this on every deploy that changes assets
+const PRECACHE_URLS = [
+  // Don't pre-cache '/' or '/index.html' to avoid serving stale HTML
+  '/style.css',
+  '/script.js',
+  '/manifest.webmanifest',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/dice-six-faces-one.svg',
+  '/icons/dice-six-faces-two.svg',
+  '/icons/dice-six-faces-three.svg',
+  '/icons/dice-six-faces-four.svg',
+  '/icons/dice-six-faces-five.svg',
+  '/icons/dice-six-faces-six.svg'
+];
 
-* { box-sizing: border-box; }
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE_URLS))
+  );
+  self.skipWaiting();
+});
 
-html, body {
-  height: 100%;
-  margin: 0;
-}
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
 
-body {
-  font-family: system-ui, Arial, sans-serif;
-  background: #f6f8fb;
-  color: #222;
-  -webkit-tap-highlight-color: transparent;
-}
+// Network-first for HTML; cache-first for other GETs
+self.addEventListener('fetch', event => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
 
-#app {
-  height: 100%;
-  display: grid;
-  place-items: center;
-  user-select: none;
-  touch-action: manipulation;
-}
+  const isHTML = req.headers.get('accept')?.includes('text/html');
 
-#dice {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--gap);
-}
+  if (isHTML) {
+    // Always try network first for HTML to get the latest deploy
+    event.respondWith(
+      fetch(req).catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
 
-.die {
-  width: var(--die-size);
-  height: var(--die-size);
-  filter: drop-shadow(0 10px 20px rgba(0,0,0,.12));
-  transition: transform 120ms ease;
-}
+  // Cache-first for static assets
+  event.respondWith(
+    caches.match(req).then(cached => {
+      if (cached) return cached;
+      return fetch(req).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
+        return res;
+      });
+    })
+  );
+});
 
-#result {
-  position: absolute;
-  bottom: 5vh;
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
-  opacity: 0.85;
-}
-
-.rolling .die {
-  animation: wiggle 180ms linear infinite;
-}
-
-@keyframes wiggle {
-  0%   { transform: translateY(0) rotate(0); }
-  50%  { transform: translateY(-4px) rotate(-2deg); }
-  100% { transform: translateY(0) rotate(0); }
-}
+// Optional: allow page to tell SW to update immediately
+self.addEventListener('message', event => {
+  if (event.data === 'skip-waiting') self.skipWaiting();
+});
