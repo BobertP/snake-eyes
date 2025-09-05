@@ -1,20 +1,32 @@
 :root {
+  /* Light theme defaults */
+  --bg: #f6f8fb;
+  --fg: #222;
+  --shadow: 0 10px 20px rgba(0,0,0,.12);
+
   --die-size: clamp(7rem, 22vw, 16rem);
   --gap: clamp(1rem, 4vw, 3rem);
 }
 
+/* Auto-switch to dark based on system preference */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0e14;
+    --fg: #e7ecf3;
+    --shadow: 0 10px 20px rgba(0,0,0,.45);
+  }
+}
+
 * { box-sizing: border-box; }
 
-html, body {
-  height: 100%;
-  margin: 0;
-}
+html, body { height: 100%; margin: 0; }
 
 body {
   font-family: system-ui, Arial, sans-serif;
-  background: #f6f8fb;
-  color: #222;
+  background: var(--bg);
+  color: var(--fg);
   -webkit-tap-highlight-color: transparent;
+  transition: background-color 180ms ease, color 180ms ease;
 }
 
 #app {
@@ -35,17 +47,11 @@ body {
 .die {
   width: var(--die-size);
   height: var(--die-size);
-  filter: drop-shadow(0 10px 20px rgba(0,0,0,.12));
-  transition: transform 120ms ease;
+  filter: drop-shadow(var(--shadow));
+  transition: transform 120ms ease, filter 180ms ease;
 }
 
-#result {
-  position: absolute;
-  bottom: 5vh;
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
-  opacity: 0.85;
-}
-
+/* subtle tap animation */
 .rolling .die {
   animation: wiggle 180ms linear infinite;
 }
