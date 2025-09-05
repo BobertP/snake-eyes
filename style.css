@@ -39,7 +39,13 @@ body {
   transition: transform 120ms ease;
 }
 
-/* subtle tap animation */
+#result {
+  position: absolute;
+  bottom: 5vh;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  opacity: 0.85;
+}
+
 .rolling .die {
   animation: wiggle 180ms linear infinite;
 }
