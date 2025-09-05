@@ -1,16 +1,15 @@
-const app = document.getElementById("app");
-const dieEl1 = document.getElementById("die1");
-const dieEl2 = document.getElementById("die2");
-const resultEl = document.getElementById("result");
+const app   = document.getElementById("app");
+const die1  = document.getElementById("die1");
+const die2  = document.getElementById("die2");
+const out   = document.getElementById("result");
 
-function getDieSrc(num) {
-  const names = ["one", "two", "three", "four", "five", "six"];
-  return `icons/dice-six-faces-${names[num - 1]}.svg`;
-}
+const names = ["one", "two", "three", "four", "five", "six"];
+const face  = n => `icons/dice-six-faces-${names[n - 1]}.svg`;
+const r6    = () => Math.floor(Math.random() * 6) + 1;
 
 let rolling = false;
 
-function rollDiceFast() {
+function roll() {
   if (rolling) return;
   rolling = true;
   app.classList.add("rolling");
@@ -18,37 +17,26 @@ function rollDiceFast() {
   const start = performance.now();
   const duration = 520;
 
-  function frame(now) {
+  function tick(now) {
     if (now - start < duration) {
-      dieEl1.src = getDieSrc(rand1to6());
-      dieEl2.src = getDieSrc(rand1to6());
-      setTimeout(() => requestAnimationFrame(frame), 38);
+      die1.src = face(r6());
+      die2.src = face(r6());
+      setTimeout(() => requestAnimationFrame(tick), 38);
     } else {
-      const n1 = rand1to6();
-      const n2 = rand1to6();
-      dieEl1.src = getDieSrc(n1);
-      dieEl2.src = getDieSrc(n2);
+      const a = r6();
+      const b = r6();
+      die1.src = face(a);
+      die2.src = face(b);
 
-      if (n1 === 1 && n2 === 1) {
-        resultEl.textContent = "Snake Eyes";
-      } else {
-        resultEl.textContent = `${n1} and ${n2} `;
-      }
+      out.textContent = (a === 1 && b === 1) ? "Snake Eyes" : `${a} and ${b}`;
 
       app.classList.remove("rolling");
       rolling = false;
     }
   }
 
-  requestAnimationFrame(frame);
+  requestAnimationFrame(tick);
 }
 
-function rand1to6() {
-  return Math.floor(Math.random() * 6) + 1;
-}
-
-// tap/click anywhere
-app.addEventListener("pointerdown", rollDiceFast, { passive: true });
-
-// auto-roll on load
-setTimeout(rollDiceFast, 300);
+app.addEventListener("pointerdown", roll, { passive: true });
+setTimeout(roll, 300); // optional autoroll on load
