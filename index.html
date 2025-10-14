@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dice</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0b5fff">
 </head>
 <body>
   <main id="app" aria-label="Tap anywhere to roll two dice">
@@ -15,14 +18,29 @@
   </main>
 
   <script>
-    // 🔥 Kill any old service workers & caches so new JS actually loads
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+    // DEV-ONLY: add ?dev=1 to URL to fully clear SW + caches on reload
+    const DEV = new URL(location.href).searchParams.get('dev') === '1';
+
+    if (DEV) {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+      }
+      if ('caches' in window) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+      }
+      console.log('DEV mode: cleared SW and caches');
     }
-    if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+
+    // Register the SW in all cases (so it works in prod)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+          .then(r => console.log('SW registered', r.scope))
+          .catch(err => console.error('SW register failed', err));
+      });
     }
   </script>
+
   <script src="script.js"></script>
 </body>
 </html>
