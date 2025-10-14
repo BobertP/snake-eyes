@@ -1,9 +1,8 @@
 // Minimal, non-breaking service worker.
-// No precache => addAll cannot fail.
-const CACHE_NAME = 'se-minimal-v1';
+// Note: bump CACHE_NAME when you change caching strategy.
+const CACHE_NAME = 'se-minimal-v3';
 
 self.addEventListener('install', (event) => {
-  // Nothing to precache; still activate immediately.
   self.skipWaiting();
 });
 

@@ -3,24 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dice</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Snake Eyes Dice</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/style.css" />
+
   <!-- PWA manifest -->
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#0b5fff">
+  <link rel="manifest" href="/manifest.webmanifest">
+
+  <!-- White browser bar / system color -->
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- Favicon (SVG ok for browsers) -->
+  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+  <link rel="alternate icon" href="/icons/icon-192.png">
 </head>
 <body>
   <main id="app" aria-label="Tap anywhere to roll two dice">
     <div id="dice">
-      <img class="die" id="die1" src="icons/dice-six-faces-one.svg" alt="die face 1" />
-      <img class="die" id="die2" src="icons/dice-six-faces-one.svg" alt="die face 1" />
+      <img class="die" id="die1" src="/icons/dice-six-faces-one.svg" alt="die face 1" />
+      <img class="die" id="die2" src="/icons/dice-six-faces-one.svg" alt="die face 1" />
     </div>
   </main>
 
+  <!-- 🔧 Optional dev-only cache clearer -->
   <script>
-    // DEV-ONLY: add ?dev=1 to URL to fully clear SW + caches on reload
     const DEV = new URL(location.href).searchParams.get('dev') === '1';
-
     if (DEV) {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
@@ -28,19 +36,24 @@
       if ('caches' in window) {
         caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
       }
-      console.log('DEV mode: cleared SW and caches');
-    }
-
-    // Register the SW in all cases (so it works in prod)
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
-          .then(r => console.log('SW registered', r.scope))
-          .catch(err => console.error('SW register failed', err));
-      });
+      console.log('DEV mode: cleared SW + caches');
     }
   </script>
 
-  <script src="script.js"></script>
+  <!-- ✅ Proper service worker registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+          .then(reg => console.log('✅ Service Worker registered with scope:', reg.scope))
+          .catch(err => console.error('❌ Service Worker registration failed:', err));
+      });
+    } else {
+      console.warn('Service workers are not supported in this browser.');
+    }
+  </script>
+
+  <!-- Dice roller logic -->
+  <script src="/script.js"></script>
 </body>
 </html>
